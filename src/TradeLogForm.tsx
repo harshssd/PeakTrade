@@ -1,11 +1,10 @@
-import React, { useState } from "react";
-import Select, { MultiValue } from "react-select"; // Import React Select and MultiValue type
-import { Trade, StrategyTag, SuccessRitual, FailurePitfall } from "../models";
+import React, { useState, useEffect } from "react";
+import { Trade, StrategyTag, SuccessRitual, FailurePitfall } from "./models";
 import {
+  defaultFailurePitfalls,
   defaultStrategyTags,
   defaultSuccessRituals,
-  defaultFailurePitfalls,
-} from "../default-configurations";
+} from "./default-configurations";
 
 const TradeLogForm: React.FC = () => {
   // State for form data
@@ -14,56 +13,21 @@ const TradeLogForm: React.FC = () => {
   const [entryPrice, setEntryPrice] = useState<number>(0);
   const [exitPrice, setExitPrice] = useState<number>(0);
   const [quantity, setQuantity] = useState<number>(0);
+  const [tags, setTags] = useState<StrategyTag[]>([]);
+  const [successRituals, setSuccessRituals] = useState<SuccessRitual[]>([]);
+  const [failurePitfalls, setFailurePitfalls] = useState<FailurePitfall[]>([]);
 
-  // Updated state types for multi-select options
-  const [selectedTags, setSelectedTags] = useState<
-    MultiValue<{ value: number; label: string; description: string }>
-  >([]);
-  const [selectedRituals, setSelectedRituals] = useState<
-    MultiValue<{ value: number; label: string; description: string }>
-  >([]);
-  const [selectedPitfalls, setSelectedPitfalls] = useState<
-    MultiValue<{ value: number; label: string; description: string }>
-  >([]);
-
-  // Options for React Select
-  const tagOptions = defaultStrategyTags.map((tag: StrategyTag) => ({
-    value: tag.id,
-    label: tag.name,
-    description: tag.description,
-  }));
-  const ritualOptions = defaultSuccessRituals.map((ritual: SuccessRitual) => ({
-    value: ritual.id,
-    label: ritual.name,
-    description: ritual.description,
-  }));
-  const pitfallOptions = defaultFailurePitfalls.map(
-    (pitfall: FailurePitfall) => ({
-      value: pitfall.id,
-      label: pitfall.name,
-      description: pitfall.description,
-    })
+  // Fetch default tags, rituals, pitfalls
+  const [availableTags, setAvailableTags] =
+    useState<StrategyTag[]>(defaultStrategyTags);
+  const [availableRituals, setAvailableRituals] = useState<SuccessRitual[]>(
+    defaultSuccessRituals
+  );
+  const [availablePitfalls, setAvailablePitfalls] = useState<FailurePitfall[]>(
+    defaultFailurePitfalls
   );
 
   const handleSubmit = () => {
-    // Convert selected options to original class instances
-    const tags = selectedTags.map(
-      (option) =>
-        defaultStrategyTags.find((tag: StrategyTag) => tag.id === option.value)!
-    );
-    const rituals = selectedRituals.map(
-      (option) =>
-        defaultSuccessRituals.find(
-          (ritual: SuccessRitual) => ritual.id === option.value
-        )!
-    );
-    const pitfalls = selectedPitfalls.map(
-      (option) =>
-        defaultFailurePitfalls.find(
-          (pitfall: FailurePitfall) => pitfall.id === option.value
-        )!
-    );
-
     // Create a new trade object with the selected tags, rituals, and pitfalls
     const newTrade = new Trade(
       Date.now(),
@@ -74,8 +38,8 @@ const TradeLogForm: React.FC = () => {
       quantity,
       (exitPrice - entryPrice) * quantity,
       tags,
-      rituals,
-      pitfalls
+      successRituals,
+      failurePitfalls
     );
 
     // Save the new trade to localStorage or any other state management solution
@@ -89,9 +53,9 @@ const TradeLogForm: React.FC = () => {
     setEntryPrice(0);
     setExitPrice(0);
     setQuantity(0);
-    setSelectedTags([]);
-    setSelectedRituals([]);
-    setSelectedPitfalls([]);
+    setTags([]);
+    setSuccessRituals([]);
+    setFailurePitfalls([]);
   };
 
   return (
@@ -158,14 +122,22 @@ const TradeLogForm: React.FC = () => {
         {/* Strategy Tags Multi-Select */}
         <div className="mb-4">
           <label className="block text-sm font-bold mb-2">Strategy Tags:</label>
-          <Select
-            isMulti
-            options={tagOptions}
-            value={selectedTags}
-            onChange={(selected) => setSelectedTags(selected)}
-            className="basic-multi-select"
-            classNamePrefix="select"
-          />
+          {availableTags.map((tag) => (
+            <div key={tag.id}>
+              <input
+                type="checkbox"
+                value={tag.id}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setTags([...tags, tag]);
+                  } else {
+                    setTags(tags.filter((t) => t.id !== tag.id));
+                  }
+                }}
+              />
+              <label className="ml-2">{tag.name}</label>
+            </div>
+          ))}
         </div>
 
         {/* Success Rituals Multi-Select */}
@@ -173,14 +145,24 @@ const TradeLogForm: React.FC = () => {
           <label className="block text-sm font-bold mb-2">
             Success Rituals:
           </label>
-          <Select
-            isMulti
-            options={ritualOptions}
-            value={selectedRituals}
-            onChange={(selected) => setSelectedRituals(selected)}
-            className="basic-multi-select"
-            classNamePrefix="select"
-          />
+          {availableRituals.map((ritual) => (
+            <div key={ritual.id}>
+              <input
+                type="checkbox"
+                value={ritual.id}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setSuccessRituals([...successRituals, ritual]);
+                  } else {
+                    setSuccessRituals(
+                      successRituals.filter((r) => r.id !== ritual.id)
+                    );
+                  }
+                }}
+              />
+              <label className="ml-2">{ritual.name}</label>
+            </div>
+          ))}
         </div>
 
         {/* Failure Pitfalls Multi-Select */}
@@ -188,14 +170,24 @@ const TradeLogForm: React.FC = () => {
           <label className="block text-sm font-bold mb-2">
             Failure Pitfalls:
           </label>
-          <Select
-            isMulti
-            options={pitfallOptions}
-            value={selectedPitfalls}
-            onChange={(selected) => setSelectedPitfalls(selected)}
-            className="basic-multi-select"
-            classNamePrefix="select"
-          />
+          {availablePitfalls.map((pitfall) => (
+            <div key={pitfall.id}>
+              <input
+                type="checkbox"
+                value={pitfall.id}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setFailurePitfalls([...failurePitfalls, pitfall]);
+                  } else {
+                    setFailurePitfalls(
+                      failurePitfalls.filter((p) => p.id !== pitfall.id)
+                    );
+                  }
+                }}
+              />
+              <label className="ml-2">{pitfall.name}</label>
+            </div>
+          ))}
         </div>
 
         <button

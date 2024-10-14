@@ -5,6 +5,7 @@ import TradeJournal from "./pages/TradeJournal";
 import TradeLogForm from "./pages/TradeLogForm";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
+import "./App.css";
 
 const App: React.FC = () => {
   return (
@@ -12,8 +13,8 @@ const App: React.FC = () => {
       <div className="min-h-screen flex">
         {/* Sidebar */}
         <aside className="w-64 bg-gradient-to-b from-gray-800 to-black text-white p-4 border-r border-gray-700">
-          <h1 className="text-4xl font-extrabold text-center mb-8 tracking-widest text-blue-400 shadow-lg shadow-blue-400/20">
-            🚀 PeakTrade
+          <h1 className="text-4xl font-extrabold text-center mb-8 tracking-widest text-white logo-hover-animation">
+            <Link to="/">🚀 PeakTrade</Link>
           </h1>
           <nav>
             <ul>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Card from "../components/Card"; // Import Card component
 import TimelineSelector from "../components/TimelineSelector"; // Import Timeline Selector
+import { FailurePitfall, StrategyTag, SuccessRitual } from "../models";
 
 const TradeJournal: React.FC = () => {
   const [trades, setTrades] = useState<any[]>([]);
@@ -125,14 +126,26 @@ const TradeJournal: React.FC = () => {
                 <p>
                   <strong>Quantity:</strong> {trade.quantity}
                 </p>
-                <p>
-                  <strong>Success Rituals:</strong>{" "}
-                  {trade.successRituals.join(", ") || "None"}
-                </p>
-                <p>
-                  <strong>Trade Pitfalls:</strong>{" "}
-                  {trade.tradePitfalls.join(", ") || "None"}
-                </p>
+                <div className="mt-2 text-sm">
+                  <p>
+                    <strong>Tags:</strong>{" "}
+                    {trade.tags
+                      .map((tag: StrategyTag) => tag.name)
+                      .join(", ") || "None"}
+                  </p>
+                  <p>
+                    <strong>Success Rituals:</strong>{" "}
+                    {trade.successRituals
+                      .map((ritual: SuccessRitual) => ritual.name)
+                      .join(", ") || "None"}
+                  </p>
+                  <p>
+                    <strong>Failure Pitfalls:</strong>{" "}
+                    {trade.failurePitfalls
+                      .map((pitfall: FailurePitfall) => pitfall.name)
+                      .join(", ") || "None"}
+                  </p>
+                </div>
               </div>
             </Card>
           ))
