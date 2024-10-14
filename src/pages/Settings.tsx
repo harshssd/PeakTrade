@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import DarkModeToggle from "../components/DarkModeToggle";
 
 const Settings: React.FC = () => {
