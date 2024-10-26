@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Card from "../components/Card"; // Import Card component
-import TimelineSelector from "../components/TimelineSelector"; // Import Timeline Selector
 import { FailurePitfall, StrategyTag, SuccessRitual } from "../models";
+import TimelineSelector from "../components/TimelineSelector";
 
 const TradeJournal: React.FC = () => {
   const [trades, setTrades] = useState<any[]>([]);
@@ -14,8 +14,11 @@ const TradeJournal: React.FC = () => {
   // Load trades and initialize filtered trades
   useEffect(() => {
     const savedTrades = JSON.parse(localStorage.getItem("trades") || "[]");
-    setTrades(savedTrades);
-    setFilteredTrades(savedTrades); // Initially, show all trades
+    const sortedTrades = savedTrades.sort(
+      (a: { id: number }, b: { id: number }) => b.id - a.id
+    ); // Sort by most recent
+    setTrades(sortedTrades);
+    setFilteredTrades(sortedTrades); // Initially, show all trades
   }, []);
 
   // Filter trades when filter options change
@@ -112,20 +115,40 @@ const TradeJournal: React.FC = () => {
           filteredTrades.map((trade) => (
             <Card
               key={trade.id}
-              title={`${trade.symbol} (${trade.type})`}
+              title={`${trade.symbol} (${trade.tradeType})`}
               value={`Profit/Loss: $${trade.profit?.toFixed(2)}`}
               className="text-sm"
             >
               <div className="mt-2 text-sm">
-                <p>
-                  <strong>Entry Price:</strong> ${trade.entryPrice}
-                </p>
-                <p>
-                  <strong>Exit Price:</strong> ${trade.exitPrice}
-                </p>
-                <p>
-                  <strong>Quantity:</strong> {trade.quantity}
-                </p>
+                {trade.type === "Stock" && (
+                  <>
+                    <p>
+                      <strong>Entry Price:</strong> ${trade.entryPrice}
+                    </p>
+                    <p>
+                      <strong>Exit Price:</strong> ${trade.exitPrice}
+                    </p>
+                    <p>
+                      <strong>Quantity:</strong> {trade.quantity}
+                    </p>
+                  </>
+                )}
+                {trade.type === "Options" && (
+                  <>
+                    <p>
+                      <strong>Strike Price:</strong> ${trade.strikePrice}
+                    </p>
+                    <p>
+                      <strong>Premium:</strong> ${trade.premium}
+                    </p>
+                    <p>
+                      <strong>Sold Premium:</strong> ${trade.soldPremium}
+                    </p>
+                    <p>
+                      <strong>Contracts:</strong> {trade.contracts}
+                    </p>
+                  </>
+                )}
                 <div className="mt-2 text-sm">
                   <p>
                     <strong>Tags:</strong>{" "}
