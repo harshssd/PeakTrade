@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import Card from "../components/Card"; // Import Card component
 import { FailurePitfall, StrategyTag, SuccessRitual } from "../models";
 import TimelineSelector from "../components/TimelineSelector";
+import FormWrapper from "../components/FormWrapper";
+import InputField from "../components/InputField";
+import Button from "../components/Button";
 
 const TradeJournal: React.FC = () => {
   const [trades, setTrades] = useState<any[]>([]);
@@ -41,11 +44,10 @@ const TradeJournal: React.FC = () => {
   }, [tradeType, symbol, startDate, endDate, trades]);
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
+    <div className="w-full mx-auto p-8 bg-gradient-to-b from-gray-100 to-gray-300 dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-lg">
+      <h2 className="text-4xl font-bold mb-6 text-center text-gray-800 dark:text-gray-100">
         Trade Journal
       </h2>
-
       {/* Timeline Selector */}
       <TimelineSelector
         onChange={(range) => {
@@ -54,16 +56,16 @@ const TradeJournal: React.FC = () => {
       />
 
       {/* Filters */}
-      <div className="mb-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-end w-full">
         {/* Trade Type Filter */}
-        <div>
-          <label className="block mb-1 text-sm font-semibold">
+        <div className="flex flex-col">
+          <label className="mb-2 text-base font-semibold text-gray-700 dark:text-gray-300">
             Trade Type:
           </label>
           <select
             value={tradeType}
             onChange={(e) => setTradeType(e.target.value)}
-            className="block w-full p-1 border rounded-md text-sm"
+            className="w-full p-3 mb-2 md:mb-4 border-2 rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-500"
           >
             <option value="All">All</option>
             <option value="Stock">Stock</option>
@@ -72,54 +74,60 @@ const TradeJournal: React.FC = () => {
         </div>
 
         {/* Symbol Filter */}
-        <div>
-          <label className="block mb-1 text-sm font-semibold">Symbol:</label>
-          <input
+        <div className="flex flex-col">
+          <label className="mb-2 text-base font-semibold text-gray-700 dark:text-gray-300">
+            Symbol:
+          </label>
+          <InputField
             type="text"
-            placeholder="Enter symbol (e.g., AAPL)"
             value={symbol}
+            placeholder="Enter symbol (e.g., AAPL)"
             onChange={(e) => setSymbol(e.target.value)}
-            className="block w-full p-1 border rounded-md text-sm"
           />
         </div>
 
-        {/* Date Range Filters */}
-        <div>
-          <label className="block mb-1 text-sm font-semibold">
+        {/* Start Date Filter */}
+        <div className="flex flex-col">
+          <label className="mb-2 text-base font-semibold text-gray-700 dark:text-gray-300">
             Start Date:
           </label>
-          <input
+          <InputField
             type="date"
             value={startDate}
+            placeholder="Start Date"
             onChange={(e) => setStartDate(e.target.value)}
-            className="block w-full p-1 border rounded-md text-sm"
           />
         </div>
 
-        <div>
-          <label className="block mb-1 text-sm font-semibold">End Date:</label>
-          <input
+        {/* End Date Filter */}
+        <div className="flex flex-col">
+          <label className="mb-2 text-base font-semibold text-gray-700 dark:text-gray-300">
+            End Date:
+          </label>
+          <InputField
             type="date"
             value={endDate}
+            placeholder="End Date"
             onChange={(e) => setEndDate(e.target.value)}
-            className="block w-full p-1 border rounded-md text-sm"
           />
         </div>
       </div>
 
       {/* Grid layout for displaying trades */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-8 w-full">
         {filteredTrades.length === 0 ? (
-          <p className="text-sm">No trades found. Start logging your trades!</p>
+          <p className="text-lg text-gray-700 dark:text-gray-300 text-center">
+            No trades found. Start logging your trades!
+          </p>
         ) : (
           filteredTrades.map((trade) => (
             <Card
               key={trade.id}
               title={`${trade.symbol} (${trade.tradeType})`}
               value={`Profit/Loss: $${trade.profit?.toFixed(2)}`}
-              className="text-sm"
+              className="text-lg"
             >
-              <div className="mt-2 text-sm">
+              <div className="mt-4 text-base">
                 {trade.type === "Stock" && (
                   <>
                     <p>
@@ -149,7 +157,7 @@ const TradeJournal: React.FC = () => {
                     </p>
                   </>
                 )}
-                <div className="mt-2 text-sm">
+                <div className="mt-4 text-base">
                   <p>
                     <strong>Tags:</strong>{" "}
                     {trade.tags

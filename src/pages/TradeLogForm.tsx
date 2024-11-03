@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Select, { MultiValue } from "react-select"; // Import React Select and MultiValue type
 import { Trade, StrategyTag, SuccessRitual, FailurePitfall } from "../models";
 import {
@@ -6,13 +6,11 @@ import {
   defaultSuccessRituals,
   defaultFailurePitfalls,
 } from "../default-configurations";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from "react-router-dom";
+import InputField from "../components/InputField";
+import Button from "../components/Button";
+import FormWrapper from "../components/FormWrapper";
 
 const TradeLogForm: React.FC = () => {
-  const navigate = useNavigate();
-
   // State for form data
   const [symbol, setSymbol] = useState<string>("");
   const [tradeType, setTradeType] = useState<string>("Stock");
@@ -21,11 +19,10 @@ const TradeLogForm: React.FC = () => {
   const [quantity, setQuantity] = useState<number>(0);
   const [strikePrice, setStrikePrice] = useState<number>(0);
   const [expirationDate, setExpirationDate] = useState<string>("");
-  const [optionType, setOptionType] = useState<string>("Call");
-  const [tradeDirection, setTradeDirection] = useState<string>("Buy");
+  const [optionDirection, setOptionDirection] = useState<string>("Call");
   const [premium, setPremium] = useState<number>(0);
   const [soldPremium, setSoldPremium] = useState<number>(0);
-  const [profit, setProfit] = useState<number>(0);
+  const [profit, setProfit] = useState<number | null>(null);
 
   // Updated state types for multi-select options
   const [selectedTags, setSelectedTags] = useState<
@@ -57,22 +54,15 @@ const TradeLogForm: React.FC = () => {
     })
   );
 
-  const handleBlur = () => {
-    setProfit(calculateProfit());
-  };
-
-  const calculateProfit = () => {
-    let profit = 0;
-
-    if (tradeType === "Stock") {
-      profit = (exitPrice - entryPrice) * quantity;
-    } else if (tradeType === "Options") {
-      const directionMultiplier = tradeDirection === "Buy" ? 1 : -1;
-      profit = directionMultiplier * (soldPremium - premium) * quantity * 100;
+  useEffect(() => {
+    if (tradeType === "Options") {
+      const calculatedProfit = (soldPremium - premium) * quantity;
+      setProfit(!isNaN(calculatedProfit) ? calculatedProfit : null);
+    } else {
+      const calculatedProfit = (exitPrice - entryPrice) * quantity;
+      setProfit(!isNaN(calculatedProfit) ? calculatedProfit : null);
     }
-
-    return isNaN(profit) ? 0 : profit;
-  };
+  }, [entryPrice, exitPrice, premium, soldPremium, quantity, tradeType]);
 
   const handleSubmit = () => {
     // Convert selected options to original class instances
@@ -101,7 +91,7 @@ const TradeLogForm: React.FC = () => {
       entryPrice,
       exitPrice,
       quantity,
-      profit,
+      profit ?? 0,
       tags,
       rituals,
       pitfalls
@@ -112,23 +102,6 @@ const TradeLogForm: React.FC = () => {
     savedTrades.push(newTrade);
     localStorage.setItem("trades", JSON.stringify(savedTrades));
 
-    // Show success message
-    toast.success("Trade logged successfully!", {
-      position: "bottom-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-    });
-
-    // Redirect user to trade journal after a short delay
-    setTimeout(() => {
-      navigate("/journal");
-    }, 3000);
-
     // Reset form fields
     setSymbol("");
     setTradeType("Stock");
@@ -137,48 +110,43 @@ const TradeLogForm: React.FC = () => {
     setQuantity(0);
     setStrikePrice(0);
     setExpirationDate("");
-    setOptionType("Call");
-    setTradeDirection("Buy");
+    setOptionDirection("Call");
     setPremium(0);
     setSoldPremium(0);
     setSelectedTags([]);
     setSelectedRituals([]);
     setSelectedPitfalls([]);
-    setProfit(0);
+    setProfit(null);
   };
 
   return (
-    <div className="max-w-xl mx-auto p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6">Log a Trade</h2>
-      <form>
+    <FormWrapper
+      title="Log a Trade"
+      className="w-full max-w-full lg:max-w-7xl mx-auto p-4 md:p-6 lg:p-8"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6 w-full">
         {/* Symbol Input */}
-        <div className="mt-4">
-          <label
-            htmlFor="symbol"
-            className="block text-sm font-medium text-gray-700"
-          >
+        <div className="col-span-1">
+          <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
             Symbol:
           </label>
-          <input
+          <InputField
             type="text"
             value={symbol}
+            placeholder="Enter symbol (e.g., AAPL)"
             onChange={(e) => setSymbol(e.target.value)}
-            className="w-full p-2 border rounded-md"
           />
         </div>
 
         {/* Trade Type Input */}
-        <div className="mt-4">
-          <label
-            htmlFor="tradeType"
-            className="block text-sm font-medium text-gray-700"
-          >
+        <div className="col-span-1">
+          <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
             Trade Type:
           </label>
           <select
             value={tradeType}
             onChange={(e) => setTradeType(e.target.value)}
-            className="w-full p-2 border rounded-md"
+            className="w-full p-3 border-2 rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-500"
           >
             <option value="Stock">Stock</option>
             <option value="Options">Options</option>
@@ -187,265 +155,175 @@ const TradeLogForm: React.FC = () => {
 
         {tradeType === "Options" && (
           <>
-            <div className="mt-4">
-              <label
-                htmlFor="strikePrice"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Strike Price
+            <div className="col-span-1">
+              <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                Strike Price:
               </label>
-              <input
+              <InputField
                 type="number"
-                name="strikePrice"
-                id="strikePrice"
-                className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                value={strikePrice}
+                value={String(strikePrice)}
+                placeholder="Enter Strike Price"
                 onChange={(e) => setStrikePrice(Number(e.target.value))}
               />
             </div>
-            <div className="mt-4">
-              <label
-                htmlFor="expirationDate"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Expiration Date
+            <div className="col-span-1">
+              <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                Expiration Date:
               </label>
-              <input
+              <InputField
                 type="date"
-                name="expirationDate"
-                id="expirationDate"
-                className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
                 value={expirationDate}
+                placeholder="Select Expiration Date"
                 onChange={(e) => setExpirationDate(e.target.value)}
               />
             </div>
-            <div className="mt-4">
-              <label
-                htmlFor="optionType"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Option Type
+            <div className="col-span-1">
+              <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                Option Direction:
               </label>
               <select
-                value={optionType}
-                onChange={(e) => setOptionType(e.target.value)}
-                className="w-full p-2 border rounded-md"
+                value={optionDirection}
+                onChange={(e) => setOptionDirection(e.target.value)}
+                className="w-full p-3 border-2 rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-500"
               >
                 <option value="Call">Call</option>
                 <option value="Put">Put</option>
               </select>
             </div>
-            <div className="mt-4">
-              <label
-                htmlFor="tradeDirection"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Direction
+            <div className="col-span-1">
+              <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                Premium:
               </label>
-              <select
-                value={tradeDirection}
-                onChange={(e) => setTradeDirection(e.target.value)}
-                className="w-full p-2 border rounded-md"
-              >
-                <option value="Buy">Buy</option>
-                <option value="Sell">Sell</option>
-              </select>
-            </div>
-            <div className="mt-4">
-              <label
-                htmlFor="premium"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Premium per Contract
-              </label>
-              <input
+              <InputField
                 type="number"
-                name="premium"
-                id="premium"
-                step="0.01"
-                className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                value={premium}
+                value={String(premium)}
+                placeholder="Enter Premium"
                 onChange={(e) => setPremium(Number(e.target.value))}
-                onBlur={handleBlur}
               />
             </div>
-            <div className="mt-4">
-              <label
-                htmlFor="soldPremium"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Sold Premium per Contract
+            <div className="col-span-1">
+              <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                Sold Premium:
               </label>
-              <input
+              <InputField
                 type="number"
-                name="soldPremium"
-                id="soldPremium"
-                step="0.01"
-                className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                value={soldPremium}
+                value={String(soldPremium)}
+                placeholder="Enter Sold Premium"
                 onChange={(e) => setSoldPremium(Number(e.target.value))}
-                onBlur={handleBlur}
               />
             </div>
           </>
         )}
 
+        {/* Entry Price Input */}
         {tradeType === "Stock" && (
           <>
-            {/* Entry Price Input */}
-            <div className="mt-4">
-              <label
-                htmlFor="entryPrice"
-                className="block text-sm font-medium text-gray-700"
-              >
+            <div className="col-span-1">
+              <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
                 Entry Price:
               </label>
-              <input
+              <InputField
                 type="number"
-                value={entryPrice}
+                value={String(entryPrice)}
+                placeholder="Enter Entry Price"
                 onChange={(e) => setEntryPrice(parseFloat(e.target.value))}
-                className="w-full p-2 border rounded-md"
-                onBlur={handleBlur}
               />
             </div>
 
             {/* Exit Price Input */}
-            <div className="mt-4">
-              <label
-                htmlFor="exitPrice"
-                className="block text-sm font-medium text-gray-700"
-              >
+            <div className="col-span-1">
+              <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
                 Exit Price:
               </label>
-              <input
+              <InputField
                 type="number"
-                value={exitPrice}
+                value={String(exitPrice)}
+                placeholder="Enter Exit Price"
                 onChange={(e) => setExitPrice(parseFloat(e.target.value))}
-                className="w-full p-2 border rounded-md"
-                onBlur={handleBlur}
               />
             </div>
           </>
         )}
 
-        <div className="mt-4">
-          <label
-            htmlFor="quantity"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Quantity
+        {/* Quantity Input */}
+        <div className="col-span-1">
+          <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+            Quantity:
           </label>
-          <input
+          <InputField
             type="number"
-            name="quantity"
-            id="quantity"
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-            value={quantity}
+            value={String(quantity)}
+            placeholder="Enter Quantity"
             onChange={(e) => setQuantity(Number(e.target.value))}
-            onBlur={handleBlur}
           />
         </div>
+      </div>
 
-        {/* Display Profit */}
-        {profit !== 0 && (
-          <div
-            className={`mt-4 p-4 rounded-md shadow-md ${
+      {/* Strategy Tags Multi-Select */}
+      <div className="mt-4 lg:mt-6">
+        <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+          Strategy Tags:
+        </label>
+        <Select
+          isMulti
+          options={tagOptions}
+          value={selectedTags}
+          onChange={(selected) => setSelectedTags(selected)}
+          className="basic-multi-select"
+          classNamePrefix="select"
+        />
+      </div>
+
+      {/* Success Rituals Multi-Select */}
+      <div className="mt-4 lg:mt-6">
+        <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+          Success Rituals:
+        </label>
+        <Select
+          isMulti
+          options={ritualOptions}
+          value={selectedRituals}
+          onChange={(selected) => setSelectedRituals(selected)}
+          className="basic-multi-select"
+          classNamePrefix="select"
+        />
+      </div>
+
+      {/* Failure Pitfalls Multi-Select */}
+      <div className="mt-4 lg:mt-6">
+        <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+          Failure Pitfalls:
+        </label>
+        <Select
+          isMulti
+          options={pitfallOptions}
+          value={selectedPitfalls}
+          onChange={(selected) => setSelectedPitfalls(selected)}
+          className="basic-multi-select"
+          classNamePrefix="select"
+        />
+      </div>
+
+      {/* Submit Button */}
+      <div className="mt-8">
+        <Button onClick={handleSubmit}>Submit Trade</Button>
+      </div>
+
+      {/* Profit Display */}
+      {profit !== null && (
+        <div className="mt-4 lg:mt-6 text-lg font-semibold">
+          <span
+            className={
               profit >= 0
-                ? "bg-green-100 border-l-4 border-green-500"
-                : "bg-red-100 border-l-4 border-red-500"
-            }`}
+                ? "text-green-600 dark:text-green-400"
+                : "text-red-600 dark:text-red-400"
+            }
           >
-            <p
-              className={`text-lg font-bold ${
-                profit >= 0 ? "text-green-700" : "text-red-700"
-              }`}
-            >
-              {profit >= 0 ? "Profit: " : "Loss: "}{" "}
-              {Math.abs(profit).toFixed(2)}
-            </p>
-          </div>
-        )}
-
-        {/* Strategy Tags Multi-Select */}
-        <div className="mt-4">
-          <label
-            htmlFor="tagOptions"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Strategy Tags:
-          </label>
-          <Select
-            isMulti
-            options={tagOptions}
-            value={selectedTags}
-            onChange={(selected) => setSelectedTags(selected)}
-            className="basic-multi-select"
-            classNamePrefix="select"
-          />
+            Profit/Loss: ${profit.toFixed(2)}
+          </span>
         </div>
-
-        {/* Success Rituals Multi-Select */}
-        <div className="mt-4">
-          <label
-            htmlFor="ritualOptions"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Success Rituals:
-          </label>
-          <Select
-            isMulti
-            options={ritualOptions}
-            value={selectedRituals}
-            onChange={(selected) => setSelectedRituals(selected)}
-            className="basic-multi-select"
-            classNamePrefix="select"
-          />
-        </div>
-
-        {/* Failure Pitfalls Multi-Select */}
-        <div className="mt-4">
-          <label
-            htmlFor="pitfallOptions"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Failure Pitfalls:
-          </label>
-          <Select
-            isMulti
-            options={pitfallOptions}
-            value={selectedPitfalls}
-            onChange={(selected) => setSelectedPitfalls(selected)}
-            className="basic-multi-select"
-            classNamePrefix="select"
-          />
-        </div>
-        <div className="mt-4">
-          <label
-            htmlFor="pitfallOptions"
-            className="block text-sm font-medium text-gray-700"
-          ></label>
-          <button
-            type="button"
-            onClick={handleSubmit}
-            className="w-full p-3 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            Submit Trade
-          </button>
-        </div>
-      </form>
-      <ToastContainer
-        position="bottom-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
-    </div>
+      )}
+    </FormWrapper>
   );
 };
 
