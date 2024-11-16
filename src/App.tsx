@@ -8,6 +8,7 @@ import Settings from "./pages/Settings";
 import "./App.css";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import ProtectedRoute from "./auth/ProtectedRoute";
 
 const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
@@ -94,13 +95,13 @@ const App: React.FC = () => {
           }`}
         >
           <Routes>
-            <Route path="/" element={<Dashboard />} />
+            <Route path="/" element={<ProtectedRoute element={<Dashboard />}/>} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
-            <Route path="/journal" element={<TradeJournal />} />
-            <Route path="/log-trade" element={<TradeLogForm />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/settings" element={<Settings />} />
+            <Route path="/journal" element={<ProtectedRoute element={<TradeJournal />}/>} />
+            <Route path="/log-trade" element={<ProtectedRoute element={<TradeLogForm />}/>} />
+            <Route path="/analytics" element={<ProtectedRoute element={<Analytics />}/>} />
+            <Route path="/settings" element={<ProtectedRoute element={<Settings />}/>} />
           </Routes>
         </div>
       </div>

@@ -9,8 +9,10 @@ import InputField from "../components/InputField";
 import Button from "../components/Button";
 import Message from "../components/Message";
 import FormWrapper from "../components/FormWrapper";
+import { useAuth } from "../auth/AuthContext";
 
 const Login: React.FC = () => {
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -20,6 +22,7 @@ const Login: React.FC = () => {
   const handleLogin = async () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      login();
       navigate("/journal"); // Redirect to Trade Journal on successful login
     } catch (error: any) {
       if (error.code.includes("auth/invalid-credential")) {
@@ -80,11 +83,10 @@ const Login: React.FC = () => {
       />
       <Button
         onClick={handleLogin}
-        color="bg-blue-500 hover:bg-blue-600"
       >Login</Button>
       <Button
         onClick={handleForgotPassword}
-        color="bg-gray-600 hover:bg-gray-700"
+        color="green"
       >Forgot Password?</Button>
       <p className="text-center text-sm text-gray-700 dark:text-gray-400">
         Don't have an account?{" "}
