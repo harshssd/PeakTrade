@@ -12,6 +12,7 @@ import {
   Legend,
 } from "chart.js";
 import TimelineSelector from "../components/TimelineSelector"; // Import the Timeline Selector
+import { getTradesForUser } from "../TradeQueries";
 
 ChartJS.register(
   CategoryScale,
@@ -29,7 +30,7 @@ const Analytics: React.FC = () => {
   const [filteredTrades, setFilteredTrades] = useState<any[]>([]);
 
   useEffect(() => {
-    const savedTrades = JSON.parse(localStorage.getItem("trades") || "[]");
+    const savedTrades = getTradesForUser();
     setTrades(savedTrades);
     setFilteredTrades(savedTrades); // Initially, show all trades
   }, []);

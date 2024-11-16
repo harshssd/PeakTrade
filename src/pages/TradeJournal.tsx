@@ -3,6 +3,7 @@ import Card from "../components/Card";
 import { FailurePitfall, StrategyTag, SuccessRitual } from "../models";
 import TimelineSelector from "../components/TimelineSelector";
 import InputField from "../components/InputField";
+import { getTradesForUser } from "../TradeQueries";
 
 const TradeJournal: React.FC = () => {
   const [trades, setTrades] = useState<any[]>([]);
@@ -14,8 +15,7 @@ const TradeJournal: React.FC = () => {
 
   // Load trades and initialize filtered trades
   useEffect(() => {
-    const savedTrades =  JSON.parse(localStorage.getItem("trades") || "[]");
-    const sortedTrades = savedTrades.sort(
+    const sortedTrades = getTradesForUser().sort(
       (a: { id: number }, b: { id: number }) => b.id - a.id
     ); // Sort by most recent
     setTrades(sortedTrades);

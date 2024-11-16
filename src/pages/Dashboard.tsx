@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import TimelineSelector from "../components/TimelineSelector";
 import Card from "../components/Card";
 import EnhancedButton from "../components/EnhancedButton"; // Import the enhanced button component
+import { getTradesForUser } from "../TradeQueries";
 
 const Dashboard: React.FC = () => {
   const [trades, setTrades] = useState<any[]>([]);
@@ -12,7 +13,7 @@ const Dashboard: React.FC = () => {
   const [totalOptionsTrades, setTotalOptionsTrades] = useState<number>(0);
 
   useEffect(() => {
-    const savedTrades = JSON.parse(localStorage.getItem("trades") || "[]");
+    const savedTrades = getTradesForUser();
     setTrades(savedTrades);
 
     // Calculate stats
