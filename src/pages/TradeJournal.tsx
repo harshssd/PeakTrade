@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
-import Card from "../components/Card"; // Import Card component
+import Card from "../components/Card";
 import { FailurePitfall, StrategyTag, SuccessRitual } from "../models";
 import TimelineSelector from "../components/TimelineSelector";
-import FormWrapper from "../components/FormWrapper";
 import InputField from "../components/InputField";
-import Button from "../components/Button";
 
 const TradeJournal: React.FC = () => {
   const [trades, setTrades] = useState<any[]>([]);

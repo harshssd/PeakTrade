@@ -13,7 +13,7 @@ const Button: React.FC<ButtonProps> = ({
   color = "blue",
   className,
 }) => {
-  const buttonColor = {
+  const buttonColor: Record<string, string> = {
     blue: "bg-blue-600 hover:bg-blue-700 focus:ring-blue-300 dark:focus:ring-blue-500",
     green:
       "bg-green-600 hover:bg-green-700 focus:ring-green-300 dark:focus:ring-green-500",
@@ -24,7 +24,7 @@ const Button: React.FC<ButtonProps> = ({
   return (
     <button
       onClick={onClick}
-      className={`w-full p-3 rounded-md border-2 border-gray-300 dark:border-gray-600 text-white font-semibold focus:outline-none focus:ring-4 transition-all duration-200 ${color} ${className}`}
+      className={`w-full p-3 rounded-md border-2 border-gray-300 dark:border-gray-600 text-white font-semibold focus:outline-none focus:ring-4 transition-all duration-200 ${buttonColor[color]} ${className}`}
     >
       {children}
     </button>
