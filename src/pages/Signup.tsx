@@ -51,9 +51,8 @@ const Signup: React.FC = () => {
       />
       <Button
         onClick={handleSignup}
-        text="Signup"
         color="bg-green-500 hover:bg-green-600"
-      />
+      >Signup</Button>
       <p className="text-center text-sm text-gray-700 dark:text-gray-400">
         Already have an account?{" "}
         <span

@@ -80,14 +80,12 @@ const Login: React.FC = () => {
       />
       <Button
         onClick={handleLogin}
-        text="Login"
         color="bg-blue-500 hover:bg-blue-600"
-      />
+      >Login</Button>
       <Button
         onClick={handleForgotPassword}
-        text="Forgot Password?"
         color="bg-gray-600 hover:bg-gray-700"
-      />
+      >Forgot Password?</Button>
       <p className="text-center text-sm text-gray-700 dark:text-gray-400">
         Don't have an account?{" "}
         <span

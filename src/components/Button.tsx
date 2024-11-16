@@ -24,9 +24,7 @@ const Button: React.FC<ButtonProps> = ({
   return (
     <button
       onClick={onClick}
-      className={`w-full p-3 rounded-md border-2 border-gray-300 dark:border-gray-600 text-white font-semibold focus:outline-none focus:ring-4 transition-all duration-200 ${
-        buttonColor[color] || buttonColor.blue
-      } ${className}`}
+      className={`w-full p-3 rounded-md border-2 border-gray-300 dark:border-gray-600 text-white font-semibold focus:outline-none focus:ring-4 transition-all duration-200 ${color} ${className}`}
     >
       {children}
     </button>

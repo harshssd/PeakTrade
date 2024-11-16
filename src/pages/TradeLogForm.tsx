@@ -56,7 +56,7 @@ const TradeLogForm: React.FC = () => {
 
   useEffect(() => {
     if (tradeType === "Options") {
-      const calculatedProfit = (soldPremium - premium) * quantity;
+      const calculatedProfit = (soldPremium - premium) * 100 * quantity;
       setProfit(!isNaN(calculatedProfit) ? calculatedProfit : null);
     } else {
       const calculatedProfit = (exitPrice - entryPrice) * quantity;
