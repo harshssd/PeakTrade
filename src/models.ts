@@ -15,6 +15,7 @@ export class FailurePitfall {
 export class Trade {
     constructor(
       public id: number,
+      public userId: string,
       public symbol: string,
       public type: string,
       public entryPrice: number,

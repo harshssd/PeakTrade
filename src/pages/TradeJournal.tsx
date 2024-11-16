@@ -14,7 +14,7 @@ const TradeJournal: React.FC = () => {
 
   // Load trades and initialize filtered trades
   useEffect(() => {
-    const savedTrades = JSON.parse(localStorage.getItem("trades") || "[]");
+    const savedTrades =  JSON.parse(localStorage.getItem("trades") || "[]");
     const sortedTrades = savedTrades.sort(
       (a: { id: number }, b: { id: number }) => b.id - a.id
     ); // Sort by most recent

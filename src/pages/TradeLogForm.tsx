@@ -82,10 +82,12 @@ const TradeLogForm: React.FC = () => {
           (pitfall: FailurePitfall) => pitfall.id === option.value
         )!
     );
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
 
     // Create a new trade object with the selected tags, rituals, and pitfalls
     const newTrade = new Trade(
       Date.now(),
+      currentUser,
       symbol,
       tradeType,
       entryPrice,

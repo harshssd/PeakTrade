@@ -23,6 +23,7 @@ const Login: React.FC = () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       login();
+      localStorage.setItem('currentUser', JSON.stringify(email));
       navigate("/journal"); // Redirect to Trade Journal on successful login
     } catch (error: any) {
       if (error.code.includes("auth/invalid-credential")) {
